@@ -84,7 +84,6 @@ export class Home extends Component {
                     <label>Enter your email:</label>
                     <input
                         type="email"
-                        accept=".docx"
                         className="form-control"
                         onChange={this.handleEmailChange}
                         required
@@ -94,6 +93,7 @@ export class Home extends Component {
                     <label>Select a file:</label>
                     <input
                         type="file"
+                        accept=".docx"
                         className="form-control form-control-sm"
                         id="formFileSm"
                         onChange={this.handleFileChange}

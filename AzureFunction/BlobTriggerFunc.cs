@@ -15,7 +15,8 @@ namespace AzureFunction
     public class BlobTriggerFunc
     {
         [FunctionName("BlobTriggerFunc")]
-        public void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]byte[] myBlob, string name, ILogger log, IDictionary<string,string> metadata)
+        public void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]
+            byte[] myBlob, string name, ILogger log, IDictionary<string,string> metadata)
         {
             if (metadata.TryGetValue("Email", out var blob))
             {
