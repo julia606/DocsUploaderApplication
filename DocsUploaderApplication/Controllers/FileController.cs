@@ -29,12 +29,12 @@ namespace DocsUploaderApplication.Controllers
 
                     using (var stream = file.OpenReadStream())
                     {
-                        blobClient.SetMetadata(new Dictionary<string, string>
-                        {
-                            { "Email", email }
-                        });
                         await blobClient.UploadAsync(stream, true);
                     }
+                    await blobClient.SetMetadataAsync(new Dictionary<string, string>
+                         {
+                             { "Email", email }
+                         });
 
                     return Ok($"File uploaded successfully.");
                 }

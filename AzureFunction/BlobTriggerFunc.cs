@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Mail;
 using Azure.Storage.Blobs;
@@ -14,13 +15,23 @@ namespace AzureFunction
     public class BlobTriggerFunc
     {
         [FunctionName("BlobTriggerFunc")]
-        public void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]Stream myBlob, string name, ILogger log)
+        public void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]byte[] myBlob, string name, ILogger log, IDictionary<string,string> metadata)
         {
-            log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {myBlob.Length} Bytes");
+            if (metadata.TryGetValue("Email", out var blob))
+            {
+                SendEmailToUser(name, blob, log);
+                var sasToken = GenerateSasToken(name);
+                log.LogInformation($"SAS Token: {sasToken}");
+            }
+            else
+            {
+                log.LogError("Metadata is empty");
+            }
+            
         }
         private static void SendEmailToUser(string blobName, string recipientEmail, ILogger log)
         {
-            string apiKey = Environment.GetEnvironmentVariable("SendGridApiKey");
+            string apiKey = "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";
             var client = new SendGridClient(apiKey);
 
             var senderEmail = "julietmntg@gmail.com";
@@ -35,7 +46,7 @@ namespace AzureFunction
                 var response = client.SendEmailAsync(msg).Result;
                 if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
                 {
-                    log.LogError($"Failed to send email: {response.StatusCode}");
+                    log.LogError($"Failed to send email: {response.StatusCode} Response: {response.Body.ReadAsStringAsync()}");
                 }
                 else
                 {
