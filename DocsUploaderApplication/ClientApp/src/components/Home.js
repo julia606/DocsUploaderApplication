@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import './Home.css';
+import { Modal, Button } from 'react-bootstrap';
 
 export class Home extends Component {
     emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -10,6 +11,7 @@ export class Home extends Component {
         selectedEmail: "",
         emailError: "",
         fileError: "",
+        showModal: false,
         message: ''
     };
 
@@ -33,7 +35,7 @@ export class Home extends Component {
             this.setState({ fileError: "Invalid file format" });
         }
         else {
-            this.setState({ emailError: "" });
+            this.setState({ fileError: "" });
         }
     };
 
@@ -57,19 +59,28 @@ export class Home extends Component {
                 }
             })
             .then((response) => {
-                this.setState({ message: response.data.message });
+                this.setState({ message: "Successfull! Wait for notification on your email,when file will be added to storage", showModal: true });
             })
             .catch((error) => {
                 console.error(error);
-                this.setState({ message: 'Upload failed' });
+                this.setState({ message: 'Something go wrong, please try again', showModal: true });
             });
+    };
+
+    handleCloseModal = () => {
+        this.setState({
+            showModal: false,
+            message: '',
+            selectedFile: null, 
+            selectedEmail: '', 
+        });
     };
 
     render() {
         return (
             <div className="container">
                 <div className="form-group">
-                    <h2>File Upload</h2>
+                    <h2>File Uploader</h2>
                     <label>Enter your email:</label>
                     <input
                         type="email"
@@ -101,10 +112,20 @@ export class Home extends Component {
                             Upload
                         </button>
                     </div>
-
-                    <div>{this.state.message}</div>
                 </div>
 
+                {/*Modal window*/}
+                <Modal show={this.state.showModal} onHide={this.handleCloseModal}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Upload Status</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>{this.state.message}</Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" onClick={this.handleCloseModal}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </div>
 
         );
