@@ -1,26 +1,112 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+import './Home.css';
 
 export class Home extends Component {
-  static displayName = Home.name;
+    emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
-  render() {
-    return (
-      <div>
-        <h1>Hello, world!</h1>
-        <p>Welcome to your new single-page application, built with:</p>
-        <ul>
-          <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
-          <li><a href='https://facebook.github.io/react/'>React</a> for client-side code</li>
-          <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
-        </ul>
-        <p>To help you get started, we have also set up:</p>
-        <ul>
-          <li><strong>Client-side navigation</strong>. For example, click <em>Counter</em> then <em>Back</em> to return here.</li>
-          <li><strong>Development server integration</strong>. In development mode, the development server from <code>create-react-app</code> runs in the background automatically, so your client-side resources are dynamically built on demand and the page refreshes when you modify any file.</li>
-          <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and your <code>dotnet publish</code> configuration produces minified, efficiently bundled JavaScript files.</li>
-        </ul>
-        <p>The <code>ClientApp</code> subdirectory is a standard React application based on the <code>create-react-app</code> template. If you open a command prompt in that directory, you can run <code>npm</code> commands such as <code>npm test</code> or <code>npm install</code>.</p>
-      </div>
-    );
-  }
+    state = {
+        selectedFile: null,
+        selectedEmail: "",
+        emailError: "",
+        fileError: "",
+        message: ''
+    };
+
+    handleEmailChange = (e) => {
+        const selectedEmail = e.target.value;
+        this.setState({ selectedEmail });
+
+        if (!this.validateEmail(selectedEmail)) {
+            this.setState({ emailError: "Invalid email address" });
+        }
+        else {
+            this.setState({ emailError: "" });
+        }
+    };
+
+    handleFileChange = (e) => {
+        const file = e.target.files[0];
+        this.setState({ selectedFile: file });
+
+        if (!this.validateFile(file)) {
+            this.setState({ fileError: "Invalid file format" });
+        }
+        else {
+            this.setState({ emailError: "" });
+        }
+    };
+
+    validateEmail = (email) => {
+        return this.emailRegex.test(email);
+    };
+
+    validateFile = (file) => {
+        return file && file.name.toLowerCase().endsWith(".docx");
+    };
+
+    handleUpload = () => {
+        const formData = new FormData();
+        formData.append('file', this.state.selectedFile);
+        formData.append('email', this.state.selectedEmail);
+
+        axios
+            .post('file', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            .then((response) => {
+                this.setState({ message: response.data.message });
+            })
+            .catch((error) => {
+                console.error(error);
+                this.setState({ message: 'Upload failed' });
+            });
+    };
+
+    render() {
+        return (
+            <div className="container">
+                <div className="form-group">
+                    <h2>File Upload</h2>
+                    <label>Enter your email:</label>
+                    <input
+                        type="email"
+                        accept=".docx"
+                        className="form-control"
+                        onChange={this.handleEmailChange}
+                        required
+                    />
+                    <div className="text-danger">{this.state.emailError}</div> { }
+                    <br />
+                    <label>Select a file:</label>
+                    <input
+                        type="file"
+                        className="form-control form-control-sm"
+                        id="formFileSm"
+                        onChange={this.handleFileChange}
+                        required
+                    />
+                    <div className="text-danger">{this.state.fileError}</div> { }
+                    <br></br>
+                    <div className="btn-container">
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            data-bs-toggle="button"
+                            autoComplete="off"
+                            onClick={this.handleUpload}
+                        >
+                            Upload
+                        </button>
+                    </div>
+
+                    <div>{this.state.message}</div>
+                </div>
+
+            </div>
+
+        );
+    }
 }
