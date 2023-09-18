@@ -16,9 +16,13 @@ using static System.Net.WebRequestMethods;
 
 namespace DocsUploaderAppTest
 {
+
     [TestClass]
     public class FileControllerTests
     {
+        private static readonly string connectionString = "DefaultEndpointsProtocol=https;AccountName=docxuploaderstorage;AccountKey=msYl+hbqOZVH4JNHidWFcfGA8v3JtiW3aenMOEIVufcP2BM2y8as8QwUhfuu9asXgK3ErFnkv3Ky+AStPE5OSg==;EndpointSuffix=core.windows.net";
+        private static readonly BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+
         [TestMethod]
         public async Task Upload_ValidFileAndEmail()
         {
@@ -45,9 +49,6 @@ namespace DocsUploaderAppTest
 
         private static FileController GetController()
         {
-            var connectionString = "DefaultEndpointsProtocol=https;AccountName=docxuploaderstorage;AccountKey=msYl+hbqOZVH4JNHidWFcfGA8v3JtiW3aenMOEIVufcP2BM2y8as8QwUhfuu9asXgK3ErFnkv3Ky+AStPE5OSg==;EndpointSuffix=core.windows.net";
-            var blobServiceClient = new BlobServiceClient(connectionString);
-
             return new FileController(blobServiceClient);
         }
 
