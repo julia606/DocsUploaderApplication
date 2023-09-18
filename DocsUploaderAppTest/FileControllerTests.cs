@@ -48,6 +48,16 @@ namespace DocsUploaderAppTest
         [TestMethod]
         public async Task Upload_InvalidEmail()
         {
+            var model = GetModel("test.docx", "-&#test@est...com21");
+
+            var result = await controller.Upload(model) as BadRequestObjectResult;
+
+            Xunit.Assert.NotNull(result);
+            Xunit.Assert.Equal("Invalid data", result.Value);
+        }
+        [TestMethod]
+        public async Task Upload_InvalidFileAndEmail()
+        {
             var model = GetModel("test.txt", "-&#test@est...com21");
 
             var result = await controller.Upload(model) as BadRequestObjectResult;
@@ -55,7 +65,6 @@ namespace DocsUploaderAppTest
             Xunit.Assert.NotNull(result);
             Xunit.Assert.Equal("Invalid data", result.Value);
         }
-
         private static FileController InitializeController()
         {
             var blobServiceClient = new BlobServiceClient(connectionString);
