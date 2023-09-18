@@ -48,7 +48,7 @@ namespace DocsUploaderAppTest
         [TestMethod]
         public async Task Upload_InvalidEmail()
         {
-            var model = GetModel("test.txt", "test@test.com");
+            var model = GetModel("test.txt", "-&#test@est...com21");
 
             var result = await controller.Upload(model) as BadRequestObjectResult;
 
