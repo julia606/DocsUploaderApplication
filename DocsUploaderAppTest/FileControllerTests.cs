@@ -21,12 +21,11 @@ namespace DocsUploaderAppTest
     public class FileControllerTests
     {
         private static readonly string connectionString = "DefaultEndpointsProtocol=https;AccountName=docxuploaderstorage;AccountKey=msYl+hbqOZVH4JNHidWFcfGA8v3JtiW3aenMOEIVufcP2BM2y8as8QwUhfuu9asXgK3ErFnkv3Ky+AStPE5OSg==;EndpointSuffix=core.windows.net";
-        private static readonly BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+        private static FileController controller = InitializeController();
 
         [TestMethod]
         public async Task Upload_ValidFileAndEmail()
         {
-            var controller = GetController();
             var model = GetModel("test.docx", "test@test.com");
 
             var result = await controller.Upload(model) as OkObjectResult;
@@ -38,7 +37,6 @@ namespace DocsUploaderAppTest
         [TestMethod]
         public async Task Upload_InvalidFileExtention()
         {
-            var controller = GetController();
             var model = GetModel("test.txt", "test@test.com");
 
             var result = await controller.Upload(model) as BadRequestObjectResult;
@@ -47,11 +45,22 @@ namespace DocsUploaderAppTest
             Xunit.Assert.Equal("Invalid data", result.Value);
         }
 
-        private static FileController GetController()
+        [TestMethod]
+        public async Task Upload_InvalidEmail()
         {
-            return new FileController(blobServiceClient);
+            var model = GetModel("test.txt", "test@test.com");
+
+            var result = await controller.Upload(model) as BadRequestObjectResult;
+
+            Xunit.Assert.NotNull(result);
+            Xunit.Assert.Equal("Invalid data", result.Value);
         }
 
+        private static FileController InitializeController()
+        {
+            var blobServiceClient = new BlobServiceClient(connectionString);
+            return new FileController(blobServiceClient);
+        }
         private static FileUploadModel GetModel(string fileName, string email)
         {
             return new FileUploadModel
