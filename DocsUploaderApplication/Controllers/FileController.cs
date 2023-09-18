@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using DocsUploaderApplication.Models;
 using DocsUploaderApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,10 +16,10 @@ namespace DocsUploaderApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload()
+        public async Task<IActionResult> Upload([FromForm] FileUploadModel model)
         {
-            var file = Request.Form.Files[0];
-            var email = Request.Form["email"].ToString();
+            var file = model.File;
+            var email = model.Email;
 
             if (FileValidationService.IsFileSelected(file))
             {
