@@ -71,11 +71,20 @@ export class Home extends Component {
         this.setState({
             showModal: false,
             message: '',
-            selectedFile: null, 
-            selectedEmail: '', 
         });
+
+        this.resetForm();
+        window.location.reload();
     };
 
+    resetForm = () => {
+        this.setState({
+            selectedEmail: "",
+            selectedFile: null,
+            emailError: "",
+            fileError: "",
+        });
+    };
     render() {
         return (
             <div className="container">
