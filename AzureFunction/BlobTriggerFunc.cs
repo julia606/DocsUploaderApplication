@@ -32,11 +32,11 @@ namespace AzureFunction
         }
         private static void SendEmailToUser(string blobName, string recipientEmail, ILogger log)
         {
-            string apiKey = "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";
+            string apiKey = Environment.GetEnvironmentVariable("SendGridApiKey");
             var client = new SendGridClient(apiKey);
 
-            var senderEmail = "julietmntg@gmail.com";
-            var subject = "File Uploaded Notification";
+            var senderEmail = Environment.GetEnvironmentVariable("senderEmail");
+            var subject = Environment.GetEnvironmentVariable("subjectEmail");
 
             var plainTextContent = $"The file {blobName} has been uploaded to the Azure Blob Storage.";
             var htmlContent = $"<p>The file <strong>{blobName}</strong> has been uploaded to the Azure Blob Storage.</p>";
@@ -72,7 +72,8 @@ namespace AzureFunction
 
             sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
-            var blobServiceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=docxuploaderstorage;AccountKey=msYl+hbqOZVH4JNHidWFcfGA8v3JtiW3aenMOEIVufcP2BM2y8as8QwUhfuu9asXgK3ErFnkv3Ky+AStPE5OSg==;EndpointSuffix=core.windows.net");
+            var connection = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+            var blobServiceClient = new BlobServiceClient(connection);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient("blobcontainer");
             var blobClient = blobContainerClient.GetBlobClient(blobName);
 
