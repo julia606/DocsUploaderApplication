@@ -12,15 +12,15 @@ using SendGrid.Helpers.Mail;
 
 namespace AzureFunction
 {
-    public class BlobTriggerFunc
+    public static class BlobTriggerFunc
     {
         [FunctionName("BlobTriggerFunc")]
-        public void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]
-            byte[] myBlob, string name, ILogger log, IDictionary<string,string> metadata)
+        public static void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]
+             byte[] myblob, string name, ILogger log, IDictionary<string, string> metadata)
         {
-            if (metadata.TryGetValue("Email", out var blob))
+            if (metadata.TryGetValue("Email", out var email))
             {
-                SendEmailToUser(name, blob, log);
+                SendEmailToUser(name, email, log);
                 var sasToken = GenerateSasToken(name);
                 log.LogInformation($"SAS Token: {sasToken}");
             }
@@ -28,7 +28,7 @@ namespace AzureFunction
             {
                 log.LogError("Metadata is empty");
             }
-            
+
         }
         private static void SendEmailToUser(string blobName, string recipientEmail, ILogger log)
         {
@@ -47,7 +47,7 @@ namespace AzureFunction
                 var response = client.SendEmailAsync(msg).Result;
                 if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
                 {
-                    log.LogError($"Failed to send email: {response.StatusCode} Response: {response.Body.ReadAsStringAsync()}");
+                    log.LogError($"Failed to send email: {response.StatusCode}");
                 }
                 else
                 {
@@ -72,7 +72,7 @@ namespace AzureFunction
 
             sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
-            var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
+            var blobServiceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=docxuploaderstorage;AccountKey=msYl+hbqOZVH4JNHidWFcfGA8v3JtiW3aenMOEIVufcP2BM2y8as8QwUhfuu9asXgK3ErFnkv3Ky+AStPE5OSg==;EndpointSuffix=core.windows.net");
             var blobContainerClient = blobServiceClient.GetBlobContainerClient("blobcontainer");
             var blobClient = blobContainerClient.GetBlobClient(blobName);
 

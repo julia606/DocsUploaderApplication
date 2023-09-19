@@ -2,16 +2,11 @@
 {
     public class FileValidationService
     {
-        public static bool IsFileValid(IFormFile file, long maxSizeInBytes)
+        public static bool IsFileValid(IFormFile file)
         {
             var fileExtension = Path.GetExtension(file.FileName);
 
             if (!string.Equals(fileExtension, ".docx", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            if (file.Length > maxSizeInBytes)
             {
                 return false;
             }
