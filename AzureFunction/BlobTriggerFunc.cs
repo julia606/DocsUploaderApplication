@@ -4,7 +4,6 @@ using System.IO;
 using System.Net.Mail;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
-
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
@@ -13,15 +12,15 @@ using SendGrid.Helpers.Mail;
 
 namespace AzureFunction
 {
-    public static class BlobTriggerFunc
+    public class BlobTriggerFunc
     {
         [FunctionName("BlobTriggerFunc")]
-        public static void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]
-             byte[] myblob, string name, ILogger log, IDictionary<string,string> metadata)
+        public void Run([BlobTrigger("blobcontainer/{name}", Connection = "AzureWebJobsStorage")]
+            byte[] myBlob, string name, ILogger log, IDictionary<string,string> metadata)
         {
-            if (metadata.TryGetValue("Email", out var email))
+            if (metadata.TryGetValue("Email", out var blob))
             {
-                SendEmailToUser(name, email, log);
+                SendEmailToUser(name, blob, log);
                 var sasToken = GenerateSasToken(name);
                 log.LogInformation($"SAS Token: {sasToken}");
             }
@@ -48,7 +47,7 @@ namespace AzureFunction
                 var response = client.SendEmailAsync(msg).Result;
                 if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
                 {
-                    log.LogError($"Failed to send email: {response.StatusCode}");
+                    log.LogError($"Failed to send email: {response.StatusCode} Response: {response.Body.ReadAsStringAsync()}");
                 }
                 else
                 {
@@ -73,7 +72,7 @@ namespace AzureFunction
 
             sasBuilder.SetPermissions(BlobSasPermissions.Read);
 
-            var blobServiceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=docxuploaderstorage;AccountKey=msYl+hbqOZVH4JNHidWFcfGA8v3JtiW3aenMOEIVufcP2BM2y8as8QwUhfuu9asXgK3ErFnkv3Ky+AStPE5OSg==;EndpointSuffix=core.windows.net");
+            var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage"));
             var blobContainerClient = blobServiceClient.GetBlobContainerClient("blobcontainer");
             var blobClient = blobContainerClient.GetBlobClient(blobName);
 
