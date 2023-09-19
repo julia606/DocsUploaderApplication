@@ -59,11 +59,11 @@ export class Home extends Component {
                 }
             })
             .then((response) => {
-                this.setState({ message: "Successfull! Wait for notification on your email,when file will be added to storage", showModal: true });
+                this.setState({ message: "Success!\n Wait for notification on your email, when file will be added to a storage", showModal: true });
             })
             .catch((error) => {
                 console.error(error);
-                this.setState({ message: 'Something go wrong, please try again', showModal: true });
+                this.setState({ message: 'Something went wrong, please try again', showModal: true });
             });
     };
 

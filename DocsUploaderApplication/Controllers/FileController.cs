@@ -21,30 +21,28 @@ namespace DocsUploaderApplication.Controllers
             var file = model.File;
             var email = model.Email;
 
-            if (FileValidationService.IsFileSelected(file))
-            {
-                if (FileValidationService.IsFileValid(file, 10485760) && EmailValidationService.IsEmailValid(email))
-                {
-                    var containerClient = _blobServiceClient.GetBlobContainerClient("blobcontainer");
-                    var blobClient = containerClient.GetBlobClient(file.FileName);
-
-                    using (var stream = file.OpenReadStream())
-                    {
-                        await blobClient.UploadAsync(stream, true);
-                    }
-                    await blobClient.SetMetadataAsync(new Dictionary<string, string>
-                         {
-                             { "Email", email }
-                         });
-
-                    return Ok($"File uploaded successfully.");
-                }
-                return BadRequest("Invalid data");
-            }
-            else
+            if (!FileValidationService.IsFileSelected(file))
             {
                 return BadRequest("No file selected.");
             }
+            if (!FileValidationService.IsFileValid(file) || !EmailValidationService.IsEmailValid(email))
+            {
+                return BadRequest("Invalid data.");
+            }
+
+            var containerClient = _blobServiceClient.GetBlobContainerClient("blobcontainer");
+            var blobClient = containerClient.GetBlobClient(file.FileName);
+
+            using (var stream = file.OpenReadStream())
+            {
+                await blobClient.UploadAsync(stream, true);
+            }
+            await blobClient.SetMetadataAsync(new Dictionary<string, string>
+            {
+                 { "Email", email }
+           });
+
+            return Ok($"File uploaded successfully.");
         }
     }
 }
